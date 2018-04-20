@@ -1,0 +1,34 @@
+wget
+wget --no-check-certificate --no-parent -nH -np --user XXX --password XXXX -r --cut-dirs=3 --reject=index.html https://hosturl/
+1)Here the first checck is complete check which has jenkins buildinfo where as second check needs to be updated like  firs check
+2) So from in the first check from "hooks" line  to end of bracket i.e only 2 brackets as 3 are already ppresent needs to be updated in the second check and the intendations 
+should also match
+3) I have more than 30 checks to do like wise
+
+4) to be short make check2 as identical to check1 using automation.
+{
+	"checks": {
+		"xxxxxxx": {
+			"interval": 60,
+			"standalone": true,
+			"command": "/etc/sensu/plugins/tomcat_webapp_check.sh -H xxxxx -p xxx -s acdf",
+			"hooks": {
+				"critical": {
+					"command": "/usr/bin/curl -XPOST http://abs:2222hshshshshshhshshs@XXXXX:8081/job/xxxx/build -H $mine",
+					"stdin": true,
+					"timeout": 10
+				}
+			}
+		}
+	}
+}
+
+{
+  "checks": {
+    "xxxxx": {
+      "interval": 60,
+      "standalone": true,
+      "command": ""/etc/sensu/plugins/tomcat_webapp_check.sh -H xxxxx -p xxx -s acdf","
+    }
+  }
+}

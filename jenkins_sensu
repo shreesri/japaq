@@ -1,0 +1,27 @@
+Jenkins-Crumb:e2271df7a07dd41fa7291fde64d380f6
+
+curl -s 'http://shree:b07b3bbd68249dfdc7aebecc6deaa3e1@172.16.1.35:8080/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)'
+
+
+mine=Jenkins-Crumb:e2271df7a07dd41fa7291fde64d380f6
+
+cat httpserver.json
+{
+  "checks": {
+    "check_Apache": {
+      "standalone": true,
+      "command": "/opt/web.sh",
+      "subscribers": [
+        "memory"
+      ],
+      "interval": 60,
+      "hooks": {
+        "critical": {
+        "command": "/usr/bin/curl -XPOST http://shree:b07b3bbd68249dfdc7aebecc6deaa3e1@172.16.1.35:8080/job/shree_ansible/build -H $mine",
+        "stdin": true,
+        "timeout": 10
+       }
+      }
+    }
+  }
+}

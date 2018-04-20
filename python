@@ -1,0 +1,59 @@
+#!/usr/bin/python3.4
+from influxdb import InfluxDBClient
+from os import popen
+from datetime import datetime
+import json
+import sys
+
+sys_path = sys.path[0]
+client = InfluxDBClient('xxxxxxx', 8086, 'admin', 'admin', "services")
+curl = "curl --insecure  --noproxy '*'  --silent --output /dev/null -w %{time_total}," \
+       "%{time_namelookup},%{time_connect},%{time_pretransfer}," \
+        "%{time_redirect},%{time_starttransfer},%{http_code}"
+
+
+def get_endpoints():
+    sites = json.load(open(sys_path + "/endpoints", "r"))
+    for test in sites:
+        output = popen("%s %s" % (curl, sites[test]["site"])).readline().split(",")
+
+        sites[test]["totalTime"] =  float(output[0])
+        sites[test]["nameLookup"] = float(output[1])
+        sites[test]["connect"] =    float(output[2])
+        sites[test]["preTrans"] =   float(output[3])
+        sites[test]["redirect"] =   float(output[4])
+        sites[test]["startTrans"] = float(output[5])
+        sites[test]["statusCode"] = int(output[6])
+
+        if sites[test]["statusCode"] != 200 and sites[test]["statusCode"] != 302:
+            print("critical")
+
+        send_influx(sites[test])
+
+
+def send_influx(jsn):
+    print(jsn)
+    influx = {
+        "measurement":      "services",
+        "time":             datetime.utcnow(),
+        "tags": {
+            "env":          jsn["env"],
+            "service":      jsn["service"],
+            "info":         jsn["info"],
+            "site":         jsn["site"]
+        },
+        "fields": {
+            "totalTime":    jsn["totalTime"],
+            "nameLookup":   jsn["nameLookup"],
+            "connect":      jsn["connect"],
+            "preTrans":     jsn["preTrans"],
+            "redirect":     jsn["redirect"],
+            "startTrans":   jsn["startTrans"],
+            "statusCode":   jsn["statusCode"],
+        }
+    }
+    print(influx)
+    client.write_points([influx])
+
+
+get_endpoints()

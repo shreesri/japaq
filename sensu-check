@@ -1,0 +1,42 @@
+{
+  "checks": {
+    "metrics-load": {
+      "type": "metric",
+      "command": "/shree/metrics-curl.rb -u https://github.com/sensu-plugins/sensu-plugins-http -s google",
+      "standalone": true,
+      "handlers": [
+        "metrics"
+      ],
+      "interval": 5,
+      "time_precision": "s",
+      "influxdb": {
+        "database": "jai",
+        "tags": {
+           "env": "Dev",
+           "info": "Business Manager",
+           "service": "EPoSS",
+           "site": "https://github.com/sensu-plugins/sensu-plugins-http"
+        },
+        "values": {
+           "time_total": ".*\\.time_total\\..*",
+           "time_namelookup": ".*\\.time_namelookup\\..*",
+           "time_connect": ".*\\.time_connect\\..*",
+           "time_pretransfer": ".*\\.time_pretransfer\\..*",
+           "time_redirect": ".*\\.time_redirect\\..*",
+           "time_starttransfer": ".*\\.time_starttransfer\\..*",
+           "http_code": ".*\\.http_code\\..*"
+        },
+        "templates":{
+                 "^shree\\": "measurement.field",
+                 ".*\\.time_total\\..*": "value",
+                 ".*\\.time_namelookup\\..*": "value",
+                 ".*\\.time_connect\\..*": "value",
+                 ".*\\.time_pretransfer\\..*": "value",
+                 ".*\\.time_redirect\\..*": "value",
+                 ".*\\.time_starttransfer\\..*": "value",
+                 ".*\\.http_code\\..*": "value"
+        }
+      }
+    }
+  }
+}

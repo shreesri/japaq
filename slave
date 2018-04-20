@@ -1,0 +1,45 @@
+Started on Mar 14, 2018 3:10:00 PM
+Using strategy: Default
+[poll] Last Built Revision: Revision ad9cb439401d521438d1ad4090a79f608f37bcfd (refs/remotes/origin/master)
+ > git --version # timeout=10
+using GIT_SSH to set credentials svcwebteam private key
+ > git ls-remote -h ssh://svcwebteam@git-webteam.ghc.org/opt/git/qa/find-a-doctor-system-services-test.git # timeout=10
+FATAL: hudson.plugins.git.GitException: Command "git ls-remote -h ssh://svcwebteam@git-webteam.ghc.org/opt/git/qa/find-a-doctor-system-services-test.git" returned status code 128:
+stdout: 
+stderr: /tmp/ssh9182540059046550892.sh: line 6: ssh: command not found
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+
+hudson.plugins.git.GitException: Command "git ls-remote -h ssh://svcwebteam@git-webteam.ghc.org/opt/git/qa/find-a-doctor-system-services-test.git" returned status code 128:
+stdout: 
+stderr: /tmp/ssh9182540059046550892.sh: line 6: ssh: command not found
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+
+	at org.jenkinsci.plugins.gitclient.CliGitAPIImpl.launchCommandIn(CliGitAPIImpl.java:1996)
+	at org.jenkinsci.plugins.gitclient.CliGitAPIImpl.launchCommandWithCredentials(CliGitAPIImpl.java:1715)
+	at org.jenkinsci.plugins.gitclient.CliGitAPIImpl.launchCommandWithCredentials(CliGitAPIImpl.java:1625)
+	at org.jenkinsci.plugins.gitclient.CliGitAPIImpl.launchCommandWithCredentials(CliGitAPIImpl.java:1616)
+	at org.jenkinsci.plugins.gitclient.CliGitAPIImpl.getHeadRev(CliGitAPIImpl.java:2778)
+	at hudson.plugins.git.GitSCM.compareRemoteRevisionWithImpl(GitSCM.java:672)
+	at hudson.plugins.git.GitSCM.compareRemoteRevisionWith(GitSCM.java:631)
+Caused: java.io.IOException
+	at hudson.plugins.git.GitSCM.compareRemoteRevisionWith(GitSCM.java:633)
+	at hudson.scm.SCM.compareRemoteRevisionWith(SCM.java:391)
+	at hudson.scm.SCM.poll(SCM.java:408)
+	at hudson.model.AbstractProject._poll(AbstractProject.java:1384)
+	at hudson.model.AbstractProject.poll(AbstractProject.java:1287)
+	at hudson.triggers.SCMTrigger$Runner.runPolling(SCMTrigger.java:594)
+	at hudson.triggers.SCMTrigger$Runner.run(SCMTrigger.java:640)
+	at hudson.util.SequentialExecutionQueue$QueueEntry.run(SequentialExecutionQueue.java:119)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:748)
+Done. Took 15 ms
+No changes

@@ -1,0 +1,1 @@
+wget command: wget --no-check-certificate --user xxxx --password xxxxx -r -nH --cut-dirs=2 --reject="index.html" https://hostname:444/webops/sensu

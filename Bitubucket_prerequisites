@@ -1,0 +1,77 @@
+Hi,
+
+Bitbucket Server installation prerequisite for Hardware requirement.
+
+Memory: As per the Bitbucket official documentation, following are the specification.
+
+1. Git: the most important factor to consider is the amount of memory required for Git. For large repositories, it is not uncommon for Git to use up to 500 MB of memory during the clone process.  The numbers vary from repository to repository, but as a rule of thumb 1.5 x the repository size on disk (contents of the .git/objects directory) is a rough estimate of the required memory for a single clone operation for repositories up to 400 MB. For larger repositories, memory usage flattens out at about 700 MB.
+
+git clone is how you get a local copy of an existing repository to work on. It's usually only used once for a given repository, unless you want to have multiple working copies of it around. (Or want to get a clean copy after messing up your local one...)
+
+git pull (or git fetch + git merge) is how you update that local copy with new commits from the remote repository. If you are collaborating with others, it is a command that you will run frequently.
+
+2. Bitbucket is coming with Java and Tomcat Application server
+
+3. Linux Operating system
+
+Bitbucket Server: 768MB
+Git: 1.5 * (4 CPUs) * 700 MB = 4200 MB
+Operating System: 1024 MB
+Total: 5992 MB
+40% safety margin: ~ 8 GB
+Bundled Elasticsearch: 1GB (add this in case you are running Bitbucket Server 4.6.0+ with the bundled Elasticsearch, which is the default configuration)
+
+A recommended server to run this instance should have 8 GB (9GB for 4.6.0+) of RAM memory considering it is only running Bitbucket Server. Please remember that these numbers are just estimations and the actual numbers may vary depending on IO, CPU and memory characteristics of the underlying hardware and OS.
+
+Reference Link: https://confluence.atlassian.com/bitbucketserverkb/bitbucket-server-is-reaching-resource-limits-779171381.html
+
+CPU: In Bitbucket Server, much of the heavy lifting is delegated to Git. As a result, when deciding on the required hardware to run Bitbucket Server, the CPU usage of the Git processes is the most important factor to consider. And, as is the case for memory usage, cloning large repositories is the most CPU intensive Git operation. When you clone a repository, Git on the server side will create a pack file (a compressed file containing all the commits and file versions in the repository) that is sent to the client. While preparing a pack file, CPU usage will go up to 100% for one CPU.
+If 4 large concurrent git repo clone will happen then required minimum 4 cpu's
+Minimum 4 cpu's required for bitbucket and Operating system required 1 cpu and bitbucket required 1 cpu . finally required 6 cpu's.
+
+Reference Link: https://confluence.atlassian.com/bitbucketserver/scaling-bitbucket-server-776640073.html#ScalingBitbucketServer-Adaptivethrottling
+
+========================================================================
+Running Bitbucket Server with a dedicated user:- 
+
+
+It Should be local. It Should not have admin privileges. It Should be a non-privileged user with read, write, modify and execute access on the Bitbucket Server install directory and home directory.
+
+For Linux, here is an example of how to create a dedicated user to run Bitbucket Server:
+
+$ sudo /usr/sbin/useradd --create-home --home-dir /opt/atlassian/bitbucket --shell /bin/bash atlbitbucket
+Reference link: https://confluence.atlassian.com/bitbucketserver/running-bitbucket-server-with-a-dedicated-user-776640047.html
+
+===============================================================================================================
+
+Bitbucket backup essentials: 
+
+An effective backup strategy is essential:
+
+for avoiding data loss in the event of any system breakdown,
+for restoring Bitbucket after any system breakdown,
+as part of the Bitbucket upgrade process.
+We highly recommend that you establish a data recovery plan that is aligned with your company's policies. At the very least, you should consider these aspects:
+
+How frequently should Bitbucket be backed up? We recommend that backups are made at least daily.
+How much downtime is acceptable? When using a backup strategy with any downtime we recommend scheduling backups at a time of day that minimizes impact on users, e.g., out of office hours.
+How long should backups be retained for? We recommend that backups be retained for at least one month.
+Where should the backups be stored? We recommend that backups are stored at an offsite location.
+How quickly and easily can you restore your data in an emergency? We recommend restoring your backups in a staging environment on a regular basis to ensure that your backup strategy works in the event of a real emergency scenario.
+The importance of being consistent
+All backup strategies for Bitbucket need to capture the state of two fundamental data sources:
+
+The home directory on the file system, which contains your repository data, log files, plugins, and so on (see Bitbucket Server home directory for more detail).
+The database, which contains data about pull requests, comments, users, groups, permissions, and so on.
+
+Reference link: https://confluence.atlassian.com/bitbucketserver/data-recovery-and-backups-776640050.html
+
+=================================================================================================================
+
+Bitbucket server Home directory:
+
+Reference Link: https://confluence.atlassian.com/bitbucketserver/bitbucket-server-home-directory-776640890.html
+===========================
+MSSQL database configuration:
+
+Reference Link: https://confluence.atlassian.com/bitbucketserver/connecting-bitbucket-server-to-sql-server-776640385.html

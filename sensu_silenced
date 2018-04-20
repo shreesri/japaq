@@ -1,0 +1,52 @@
+Server side configuration 
+
+1. Go to here then /etc/sensu/conf.d/handlers 
+2. then create following file 
+cat jenkins.json
+{
+  "handlers": {
+    "jjob": {
+      "type": "pipe",
+      "command": "/usr/bin/curl -XPOST http://shree:b07b3bbd68249dfdc7aebecc6deaa3e1@172.16.1.35:8080/job/ansible_jenkins/build -H $mine",
+      "severites": "critical"
+    }
+  }
+}
+3. then restart the following services
+
+/etc/init.d/sensu-api restart && /etc/init.d/sensu-server restart && /etc/init.d/uchiwa restart
+
+client side configuration
+
+1. Go to here then  /etc/sensu/conf.d/
+2. then create following file
+
+cat  httpserver.json
+{
+  "checks": {
+    "check_Apache": {
+      "command": "/opt/web.sh",
+      "interval": 60,
+      "subscribers": [
+        "memory"
+      ],
+      "standalone": true,
+      "handlers": ["jjob"]
+    }
+  }
+}
+
+uchiwa dashboard configuration
+
+3. /etc/init.d/sensu-client restart
+
+go to the check then silence it
+
+==============================================
+
+New docker images
+
+pandusiddhu/jai1:server143 - server
+pandusiddhu/jai1:client143 - client
+
+

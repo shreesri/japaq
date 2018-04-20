@@ -1,0 +1,8 @@
+version: '3'
+services:
+  sensu:
+    image: hiroakis/docker-sensu-server
+    volumes:
+      - '/chiru_pawan/conf.d/:/etc/sensu/conf.d/'
+      - '/chiru_pawan/config.json:/etc/sensu/config.json'
+    command: /bin/bash -c  "yum update -y grep && git clone https://github.com/shreesri/sensu && cp /sensu/test* /etc/sensu/conf.d && cp /sensu/replace.sh /opt && chmod 755 /opt/replace.sh && /opt/replace.sh && /usr/bin/supervisord"

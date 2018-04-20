@@ -1,0 +1,106 @@
+Java 1.8 installation and Java Home path setting
+
+yum install java -y
+
+insert following content in /etc/profile 
+
+export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.161-0.b14.el7_4.x86_64
+export JRE_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.161-0.b14.el7_4.x86_64/jre
+export PATH=$PATH:/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.161-0.b14.el7_4.x86_64:/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.161-0.b14.el7_4.x86_64/jre
+
+========================================
+Check your latest versions of Git and Perl
+In a terminal or command prompt, run:
+yum install git perl -y
+git --version
+perl --version
+The version of Git should be 1.8.x or higher. The version of Perl should be 5.8.8 or higher.
+
+=================================================================================
+Setting the Bitbucket home directory - it's required lvm mountpoint
+
+Create your Bitbucket home directory (without spaces in the name), and then tell Bitbucket Server where you created it by editing the <Bitbucket Server installation directory>/bin/set-bitbucket-home.sh file – uncomment the BITBUCKET_HOME line and add the absolute path to your home directory. Here's an example of what that could look like when you're done:
+
+#
+if ["x${BITBUCKET_HOME}" = "x"]; then
+    export BITBUCKET_HOME="/opt/atlassian/bitbucket"
+fi
+
+=================================================================================
+Bitbucket ports: 
+
+Port 7990: Bitbucket runs on port 7990 by default. If this port is already in use, see Changing the port that Bitbucket Server listens on for more guidance on changing this.
+Ports 7992 and 7993: Bitbucket Server's bundled Elasticsearch instance, which is required for search functionality, requires ports 7992 and 7993 be available. This is not configurable, so ensure these ports are available.
+
+==============================================================================
+
+Running Bitbucket Server with a dedicated user:- 
+
+
+It Should be local. It Should not have admin privileges. It Should be a non-privileged user with read, write, modify and execute access on the Bitbucket Server install directory and home directory.
+
+For Linux, here is an example of how to create a dedicated user to run Bitbucket Server:
+
+$ sudo /usr/sbin/useradd --create-home --home-dir /opt/atlassian/bitbucket --shell /bin/bash atlbitbucket
+Reference link: https://confluence.atlassian.com/bitbucketserver/running-bitbucket-server-with-a-dedicated-user-776640047.html
+
+==============================================================================
+
+Bitbucket installation:
+
+Change to the directory where you downloaded Bitbucket then execute this command to make it executable:
+
+$ chmod a+x atlassian-Bitbucket-X.X.X-x64.bin
+Where X.X.X is is the Bitbucket version you downloaded.
+
+Run the installer - we recommend using sudo to run the installer as this will create a dedicated account to run Bitbucket and allow you to run Bitbucket as a service.
+
+$ sudo ./atlassian-Bitbucket-X.X.X-x64.bin
+When prompted, choose to start and launch Bitbucket in a browser.
+Once installation is complete head to http://localhost:7990 in your browser to begin the setup process. 
+
+Reference link: https://confluence.atlassian.com/bitbucketserver/install-a-bitbucket-server-trial-867192384.html
+
+==============================================================================
+
+Bitbucket server running as a service:- 
+
+Using a systemd unit file
+
+Create a bitbucket.service file in your /etc/systemd/system/ directory with the following lines:
+
+[Unit]
+Description=Atlassian Bitbucket Server Service
+After=syslog.target network.target
+ 
+[Service]
+Type=forking
+User=atlbitbucket
+ExecStart=/opt/atlassian-bitbucket-X.Y.Z/bin/start-bitbucket.sh
+ExecStop=/opt/atlassian-bitbucket-X.Y.Z/bin/stop-bitbucket.sh
+ 
+[Install]
+WantedBy=multi-user.target
+
+The value for User should be adjusted to match the user that Bitbucket Server runs as. ExecStart and ExecStop should be adjusted to match the path to your <Bitbucket Server installation directory>.
+
+Enable the service to start at boot time by running the following in a terminal:
+
+systemctl enable bitbucket.service
+Stop Bitbucket Server, then restart the system, to check that Bitbucket Server starts as expected.
+Use the following commands to manage the service:
+Disable the service:
+systemctl disable bitbucket.service
+Check that the service is set to start at boot time:
+if [ -f /etc/systemd/system/*.wants/bitbucket.service ]; then echo "On"; else echo "Off"; fi
+Manually start and stop the service: 
+systemctl start bitbucket
+systemctl stop bitbucket
+Check the status of Bitbucket Server:
+systemctl status bitbucket
+
+Reference link: https://confluence.atlassian.com/bitbucketserver/running-bitbucket-server-as-a-linux-service-776640157.html
+=======================================================================================================
+MSSQL database configuration:
+
+Reference Link: https://confluence.atlassian.com/bitbucketserver/connecting-bitbucket-server-to-sql-server-776640385.html

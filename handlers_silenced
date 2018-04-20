@@ -1,0 +1,72 @@
+Multiple handlers on signle json handlers file
+
+[root@2da5355ac24a handlers]# pwd
+/etc/sensu/conf.d/handlers
+[root@2da5355ac24a handlers]# cat jenkins.json
+{
+  "handlers": {
+    "jjob": {
+      "type": "pipe",
+      "command": "/usr/bin/curl -XPOST http://shree:b07b3bbd68249dfdc7aebecc6deaa3e1@172.16.1.35:8080/job/ansible_jenkins/build -H $mine",
+      "severites": "critical"
+    },
+
+    "vjob": {
+      "type": "pipe",
+      "command": "/usr/bin/curl -XPOST http://shree:b07b3bbd68249dfdc7aebecc6deaa3e1@172.16.1.35:8080/job/dockerjob/build -H $mine",
+      "severites": "critical"
+    }
+
+  }
+}
+[root@2da5355ac24a handlers]#
+
+
+=============================================================================================================
+1. To silenced the check with subscription 
+
+curl -s -i -X POST -H 'Content-Type: application/json' -d '{"subscription": "memory", "check": "check_Apache", "expire_on_resolve": true}' http://172.16.1.35:4592/silenced/
+
+2. To get the silenced details in json metor
+
+curl -s -X GET http://172.16.1.35:4592/silenced | jq 
+
+3. clear the silenced 
+
+curl -s -i -X POST -H 'Content-Type: application/json' -d '{"subscription": "memory", "check": "check_Apache", "expire_on_resolve": true}' http://172.16.1.35:4592/silenced/clear
+
+4. example to define check in sensu client
+
+[root@c0c4ea71626f conf.d]# cat httpserver.json
+{
+  "checks": {
+    "check_Apache": {
+      "command": "/opt/web.sh",
+      "interval": 60,
+      "subscribers": [
+        "memory"
+      ],
+      "standalone": true,
+      "handlers": ["jjob"]
+    }
+  }
+}
+[root@c0c4ea71626f conf.d]# cat list-docker.json
+{
+  "checks": {
+    "shree": {
+      "command": "/opt/web.sh",
+      "interval": 60,
+      "subscribers": [
+        "memory"
+      ],
+      "standalone": true,
+      "handlers": ["vjob"]
+    }
+  }
+}
+[root@c0c4ea71626f conf.d]#
+
+
+
+

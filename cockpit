@@ -1,0 +1,77 @@
+#!/usr/bin/python3.4
+
+from time import *
+from datetime import *
+from os import popen
+from influxdb import InfluxDBClient
+import argparse
+import sys
+
+
+args = sys.argv
+client = InfluxDBClient('172.16.1.26', 8086, 'admin', 'admin', 'fuck')
+
+curl = "curl --silent --output /dev/null -w %{time_total}," \
+       "%{time_namelookup},%{time_connect},%{time_pretransfer}," \
+        "%{time_redirect},%{time_starttransfer},%{http_code}"
+
+variables = {"env": "DEV", "site": "https://github.com/sensu-plugins/sensu-plugins-http",
+             "info": "Business Manager", "service": "EPoSS"}
+
+
+def get_args(jsn):
+    if len(args) == 5:
+        parser = argparse.ArgumentParser()
+        parser.add_argument('-env',     help='The Environment of the Service Call ("QA/DEV")')
+        parser.add_argument('-service', help='The Service Being Used ("PoSS/MPoSS/PaNSS")')
+        parser.add_argument('-info',    help='What The Service Controls ("ElasticSearch/GHCServices/wa-member")')
+        parser.add_argument('-site',    help='The URI For The Curl Request')
+
+        results = parser.parse_args()
+        jsn["env"] = results.env
+        jsn["service"] = results.service
+        jsn["info"] = results.info
+        jsn["site"] = results.site
+    elif (len(args) > 1) and (len(args) < 5):
+        exit("Incorrect number of args. Please use '-Help' for a list of commands")
+    return jsn
+
+
+def get_times(jsn):
+    output = popen("%s %s" % (curl, variables["site"])).readline().split(",")
+
+    jsn["totalTime"] =      float(output[0])
+    jsn["nameLookup"] =     float(output[1])
+    jsn["connect"] =        float(output[2])
+    jsn["preTransfer"] =    float(output[3])
+    jsn["redirect"] =       float(output[4])
+    jsn["startTrans"] =     float(output[5])
+    jsn["statusCode"] =     float(output[6])
+    return jsn
+
+
+def send_influx(jsn):
+    client.write_points([{
+        "measurement":      "Tiger",
+        "time":             datetime.utcnow(),
+        "tags": {
+            "env":          jsn["env"],
+            "service":      jsn["service"],
+            "info":         jsn["info"],
+            "site":         jsn["site"]
+        },
+        "fields": {
+            "totalTime":    jsn["totalTime"],
+            "nameLookup":   jsn["nameLookup"],
+            "connect":      jsn["connect"],
+            "preTransfer":  jsn["preTransfer"],
+            "redirect":     jsn["redirect"],
+            "startTrans":   jsn["startTrans"],
+            "statusCode":   jsn["statusCode"],
+        }
+    }])
+
+
+while True:
+    send_influx(get_times(get_args(variables)))
+    break

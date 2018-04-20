@@ -1,0 +1,47 @@
+ cat influxdb.json
+{
+  "influxdb": {
+    "database": "stats",
+    "host": "xxxxx",
+    "port": "xxxx",
+    "username": "admin",
+    "password": "admin",
+    "use_ssl": false,
+    "strip_metric": "host",
+    "tags": {
+      "region": "my-dc-01",
+      "stage": "prod"
+    },
+    "templates": [
+      {"^sensu\\.checks\\..*":"source.measurement.field*"},
+      {".*\\.host_stats\\..*": "host.measurement.field.aggregation"}
+
+    ]
+  }
+}
+
+============================
+
+ checks/metrics-load.json
+{
+  "checks": {
+    "metrics-load": {
+      "type": "metric",
+      "command": "/opt/metrics-curl.rb -u https://github.com/sensu-plugins/sensu-plugins-http -s vijaya_bank",
+      "standalone": true,
+      "handlers": [
+        "metrics"
+      ],
+      "interval": 5,
+      "time_precision": "s",
+      "influxdb": {
+        "database": "jai",
+        "tags": {
+           "stage": "POC",
+           "region": "DMZ"
+        }
+      }
+    }
+  }
+}
+

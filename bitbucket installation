@@ -1,0 +1,103 @@
+
+Check your latest versions of Git and Perl
+In a terminal or command prompt, run:
+yum install git -y
+git --version
+perl --version
+The version of Git should be 1.8.x or higher. The version of Perl should be 5.8.8 or higher.
+
+=================================================================================
+
+Bitbucket ports: 
+
+Port 7990: Bitbucket runs on port 7990 by default. If this port is already in use, see Changing the port that Bitbucket Server listens on for more guidance on changing this.
+Ports 7992 and 7993: Bitbucket Server's bundled Elasticsearch instance, which is required for search functionality, requires ports 7992 and 7993 be available. This is not configurable, so ensure these ports are available.
+
+==============================================================================
+
+Setting the Bitbucket home directory - it's required lvm mountpoint
+
+=================================================================================
+
+Running Bitbucket Server with a dedicated user:- 
+need to provide sudo permissions to restart the bitucket service
+svcbitbucket        ALL=(ALL)       ALL
+
+It Should be local. It Should not have admin privileges. It Should be a non-privileged user with read, write, modify and execute access on the Bitbucket Server install directory and home directory.
+
+For Linux, here is an example of how to create a dedicated user to run Bitbucket Server:
+and it should required sudo permissions
+$ /usr/sbin/useradd --create-home --home-dir /opt/atlassian/bitbucket --shell /bin/bash svcbitbucket
+Reference link: https://confluence.atlassian.com/bitbucketserver/running-bitbucket-server-with-a-dedicated-user-776640047.html
+
+mkdir /opt/atlassian/bitbucket
+/usr/sbin/useradd --create-home --home-dir /opt/atlassian/bitbucket --shell /bin/bash svcbitbucket
+useradd: warning: the home directory already exists.
+Not copying any file from skel directory into it.
+cp /etc/skel/.bash* /opt/atlassian/bitbucket
+chown -R svcbitbucket:svcbitbucket /opt/atlassian/bitbucket
+
+
+==============================================================================
+
+Bitbucket installation:
+
+Change to the directory where you downloaded Bitbucket then execute this command to make it executable:
+
+$ chmod a+x atlassian-Bitbucket-X.X.X-x64.bin
+Where X.X.X is is the Bitbucket version you downloaded.
+
+Run the installer - we recommend using sudo to run the installer as this will create a dedicated account to run Bitbucket and allow you to run Bitbucket as a service.
+
+$ sudo ./atlassian-Bitbucket-X.X.X-x64.bin
+When prompted, choose to start and launch Bitbucket in a browser.
+Once installation is complete head to http://localhost:7990 in your browser to begin the setup process. 
+
+Reference link: https://confluence.atlassian.com/bitbucketserver/install-a-bitbucket-server-trial-867192384.html
+
+==============================================================================
+
+Bitbucket server running as a service:- 
+
+Using a systemd unit file
+
+Create a bitbucket.service file in your /etc/systemd/system/ directory with the following lines:
+
+cat bitbucket.service
+[Unit]
+Description=Atlassian Bitbucket Server Service
+After=syslog.target network.target
+
+[Service]
+Type=forking
+User=shreebig
+ExecStart=/opt/atlassian/bitbucket/5.9.0/bin/start-bitbucket.sh
+ExecStop=/opt/atlassian/bitbucket/5.9.0/bin/stop-bitbucket.sh
+TasksAccounting=false
+
+[Install]
+WantedBy=multi-user.target
+
+
+The value for User should be adjusted to match the user that Bitbucket Server runs as. ExecStart and ExecStop should be adjusted to match the path to your <Bitbucket Server installation directory>.
+
+Enable the service to start at boot time by running the following in a terminal:
+
+systemctl enable bitbucket.service
+Stop Bitbucket Server, then restart the system, to check that Bitbucket Server starts as expected.
+Use the following commands to manage the service:
+Disable the service:
+systemctl disable bitbucket.service
+Check that the service is set to start at boot time:
+if [ -f /etc/systemd/system/*.wants/bitbucket.service ]; then echo "On"; else echo "Off"; fi
+Manually start and stop the service: 
+systemctl start bitbucket
+systemctl stop bitbucket
+Check the status of Bitbucket Server:
+systemctl status bitbucket
+
+Reference link: https://confluence.atlassian.com/bitbucketserver/running-bitbucket-server-as-a-linux-service-776640157.html
+=======================================================================================================
+MSSQL database configuration:
+
+Reference Link: https://confluence.atlassian.com/bitbucketserver/connecting-bitbucket-server-to-sql-server-776640385.html
